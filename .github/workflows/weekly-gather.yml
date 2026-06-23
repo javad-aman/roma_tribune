@@ -88,3 +88,19 @@ jobs:
           git add content/weekly-digest.md
           git diff --cached --quiet || git commit -m "chore: weekly digest ${{ env.START_DATE }} to ${{ env.END_DATE }}"
           git push
+
+      - name: Email digest
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_ADDRESS }}
+          password: ${{ secrets.EMAIL_APP_PASSWORD }}
+          to: ${{ secrets.EMAIL_ADDRESS }}
+          from: Roma Tribune <${{ secrets.EMAIL_ADDRESS }}>
+          subject: "Roma Tribune digest: ${{ env.START_DATE }} to ${{ env.END_DATE }}"
+          body: ""
+          html_body: ""
+          attachments: content/weekly-digest.md
+          convert_markdown: true
