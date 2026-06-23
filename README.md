@@ -2,6 +2,23 @@
 
 An independent, English-language newsletter about AS Roma, published on Substack. Written for the English-speaking diaspora fan who wants real coverage — not wire copy — with a personal, opinionated voice and curated intelligence translated from Italian sources.
 
+## Quick Start
+
+```powershell
+# One command runs the full pipeline interactively
+.\run.ps1
+```
+
+It will ask for the date range and your opinion angle, then produce `data/draft.md` ready to edit and paste into Substack.
+
+Or run steps individually:
+
+```powershell
+.venv\Scripts\python -m src.gather    --start 2026-06-16 --end 2026-06-22 --output data/gather.json
+.venv\Scripts\python -m src.summarize --input data/gather.json             --output data/summarized.json
+.venv\Scripts\python -m src.draft     --opinion "Your angle here"          --output data/draft.md
+```
+
 ## Directory Map
 
 ```

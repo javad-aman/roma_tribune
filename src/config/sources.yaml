@@ -1,40 +1,50 @@
 official:
   - name: AS Roma Official
     url: https://www.asroma.com
-    rss: null
+    rss: null  # no public RSS found; check asroma.com for feed link
+    language: it
 
 italian_press:
   - name: Il Romanista
     url: https://www.ilromanista.eu
-    rss: null
+    rss: null  # no public RSS found; verify at ilromanista.eu
+    language: it
   - name: Corriere dello Sport
     url: https://www.corrieredellosport.it
-    rss: null
+    rss: https://www.corrieredellosport.it/rss/ca  # football section
+    language: it
   - name: Gazzetta dello Sport
     url: https://www.gazzetta.it
-    rss: null
+    rss: null  # verify at gazzetta.it — try /rss/calcio.xml
+    language: it
   - name: Il Tempo
     url: https://www.iltempo.it
-    rss: null
+    rss: null  # verify at iltempo.it
+    language: it
 
 roma_sites:
   - name: Forzaroma.info
     url: https://www.forzaroma.info
-    rss: null
+    rss: https://www.forzaroma.info/feed  # WordPress standard — verify
+    language: it
   - name: RomaNews
     url: https://www.romanews.eu
-    rss: null
+    rss: https://www.romanews.eu/feed  # WordPress standard — verify
+    language: it
   - name: PianetaRoma
     url: https://www.pianetaroma.it
-    rss: null
+    rss: https://www.pianetaroma.it/feed  # WordPress standard — verify
+    language: it
 
 english_outlets:
   - name: RomaPress
     url: https://www.romapress.net
-    rss: null
+    rss: https://romapress.net/feed  # WordPress standard — verify
+    language: en
   - name: Chiesa Di Totti
     url: https://www.chiesaditotti.com
-    rss: null
+    rss: https://www.chiesaditotti.com/feed  # WordPress standard — verify
+    language: en
 
 transfer_reporters:
   - name: Fabrizio Romano

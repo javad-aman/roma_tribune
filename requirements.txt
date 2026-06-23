@@ -1,5 +1,6 @@
 anthropic
 feedparser
+google-genai
 pyyaml
 python-dotenv
 requests
