@@ -85,10 +85,11 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin develop
+          git reset --soft origin/develop
           git add content/weekly-digest.md
           git diff --cached --quiet || git commit -m "chore: weekly digest ${{ env.START_DATE }} to ${{ env.END_DATE }}"
-          git pull --rebase origin develop
-          git push
+          git push origin develop
 
       - name: Email digest via Resend
         env:
