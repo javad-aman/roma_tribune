@@ -90,18 +90,53 @@ jobs:
           git pull --rebase origin develop
           git push
 
-      - name: Email digest
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          secure: true
-          username: ${{ secrets.EMAIL_ADDRESS }}
-          password: ${{ secrets.EMAIL_APP_PASSWORD }}
-          to: ${{ secrets.EMAIL_ADDRESS }}
-          from: Roma Tribune <${{ secrets.EMAIL_ADDRESS }}>
-          subject: "Roma Tribune digest: ${{ env.START_DATE }} to ${{ env.END_DATE }}"
-          body: ""
-          html_body: ""
-          attachments: content/weekly-digest.md
-          convert_markdown: true
+      - name: Email digest via Resend
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+          START_DATE: ${{ env.START_DATE }}
+          END_DATE: ${{ env.END_DATE }}
+        run: |
+          python - <<'EOF'
+          import json, os, pathlib, requests
+
+          digest = pathlib.Path("content/weekly-digest.md").read_text(encoding="utf-8")
+          start  = os.environ["START_DATE"]
+          end    = os.environ["END_DATE"]
+          to     = os.environ["EMAIL_ADDRESS"]
+          key    = os.environ["RESEND_API_KEY"]
+
+          # Convert markdown to simple HTML paragraphs
+          lines = digest.splitlines()
+          html_lines = []
+          for line in lines:
+              if line.startswith("## "):
+                  html_lines.append(f"<h2>{line[3:]}</h2>")
+              elif line.startswith("# "):
+                  html_lines.append(f"<h1>{line[2:]}</h1>")
+              elif line.startswith("**") and line.endswith("**"):
+                  html_lines.append(f"<strong>{line[2:-2]}</strong>")
+              elif line.startswith("*") and line.endswith("*"):
+                  html_lines.append(f"<em>{line[1:-1]}</em>")
+              elif line.strip() == "":
+                  html_lines.append("<br>")
+              else:
+                  html_lines.append(f"<p>{line}</p>")
+          html = "\n".join(html_lines)
+
+          payload = {
+              "from": "Roma Tribune <onboarding@resend.dev>",
+              "to": [to],
+              "subject": f"Roma Tribune digest: {start} to {end}",
+              "html": html,
+          }
+
+          resp = requests.post(
+              "https://api.resend.com/emails",
+              headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"},
+              json=payload,
+              timeout=15,
+          )
+          resp.raise_for_status()
+          print(f"Email sent: {resp.json()}")
+          EOF
