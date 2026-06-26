@@ -1,8 +1,8 @@
-name: Weekly Gather & Summarize
+name: Daily Gather & Summarize
 
 on:
   schedule:
-    - cron: "0 8 * * 1"   # Every Monday at 8am UTC (4am ET / 10am CET)
+    - cron: "0 8 * * *"   # Every day at 8am UTC (4am ET / 10am CET)
   workflow_dispatch:        # Also allows manual trigger from GitHub UI
 
 permissions:
@@ -30,7 +30,7 @@ jobs:
 
       - name: Calculate date window (past 7 days)
         run: |
-          echo "START_DATE=$(date -u -d '7 days ago' +%Y-%m-%d)" >> $GITHUB_ENV
+          echo "START_DATE=$(date -u -d '1 day ago' +%Y-%m-%d)" >> $GITHUB_ENV
           echo "END_DATE=$(date -u +%Y-%m-%d)" >> $GITHUB_ENV
 
       - name: Gather news
