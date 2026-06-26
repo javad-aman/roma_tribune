@@ -52,9 +52,9 @@ def _format_digest(items: list[dict]) -> str:
             continue
         lines.append(f"\n### {section}\n")
         for e in entries:
-            lines.append(f"**{e['headline']}** [{e['reliability']}]")
-            lines.append(f"{e['summary']}")
-            lines.append(f"*Source: {e['source']} — {e['date']}*\n")
+            lines.append(f"**{e['headline']}**")
+            lines.append(e["summary"])
+            lines.append(f"*{e.get('source', '')}*\n")
     return "\n".join(lines)
 
 

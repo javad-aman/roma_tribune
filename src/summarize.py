@@ -89,6 +89,46 @@ def summarize_batch(batch: list[dict], client: anthropic.Anthropic) -> list[dict
     return enriched
 
 
+def filter_and_merge(items: list[dict], client: anthropic.Anthropic, max_items: int = 15) -> list[dict]:
+    """
+    Reduce a large item list to the top max_items most newsworthy stories.
+    Related stories are merged into one. Low-value items are dropped.
+    """
+    block = ""
+    for i, item in enumerate(items, 1):
+        block += (
+            f"\nItem {i}:\n"
+            f"  Section: {item.get('section', '')}\n"
+            f"  Headline: {item['headline']}\n"
+            f"  Summary: {item['summary']}\n"
+            f"  Source: {item['source']} ({item['date']})\n"
+        )
+
+    prompt = f"""You are the editor of Roma Tribune, an AS Roma newsletter.
+
+Below are {len(items)} news items gathered this week. Your job:
+1. Identify items about the same story and MERGE them into one combined item with a fuller summary.
+2. Keep only the {max_items} most important and newsworthy stories. Drop minor, low-value, or repetitive items.
+3. Prioritize: confirmed transfers, match results, manager/contract news, major club decisions.
+4. De-prioritize: social media gossip, celebrity cameos, unrelated football, vague rumors.
+
+Return a JSON array of exactly up to {max_items} items. No markdown fences. Schema:
+{{"headline": "<str>", "summary": "<2-3 sentence str>", "section": "<Transfers|Match & Results|Club & Other>", "source": "<str>"}}
+
+Items:{block}"""
+
+    message = client.messages.create(
+        model=MODEL,
+        max_tokens=4096,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    text = message.content[0].text.strip()
+    if text.startswith("```"):
+        lines = text.splitlines()
+        text = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
+    return json.loads(text)
+
+
 def summarize_all(items: list[dict]) -> list[dict]:
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
@@ -111,7 +151,15 @@ def summarize_all(items: list[dict]) -> list[dict]:
         if i < len(batches):
             time.sleep(BATCH_SLEEP_SECONDS)
 
-    return all_enriched
+    print(f"\n  Filtering and merging {len(all_enriched)} items down to top 15...", end=" ", flush=True)
+    try:
+        final = filter_and_merge(all_enriched, client)
+        print(f"done ({len(final)} items kept)")
+    except Exception as exc:
+        print(f"FAILED: {exc} -- returning all items unfiltered")
+        final = all_enriched
+
+    return final
 
 
 def main():
