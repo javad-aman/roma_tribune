@@ -69,9 +69,9 @@ jobs:
                   continue
               lines.append(f"## {section} ({len(entries)} items)\n")
               for e in entries:
-                  lines.append(f"**[{e['reliability']}] {e['headline']}**")
+                  lines.append(f"**{e['headline']}**")
                   lines.append(f"{e['summary']}")
-                  lines.append(f"*{e['source']} — {e['date']}*\n")
+                  lines.append(f"*{e.get('source', '')}*\n")
 
           pathlib.Path("content/weekly-digest.md").write_text("\n".join(lines), encoding="utf-8")
           print(f"Wrote {len(items)} items to content/weekly-digest.md")
