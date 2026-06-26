@@ -2,7 +2,7 @@ name: Weekly Gather & Summarize
 
 on:
   schedule:
-    - cron: "0 13 * * 1"  # Every Monday at 1pm UTC (9am ET)
+    - cron: "0 8 * * 1"   # Every Monday at 8am UTC (4am ET / 10am CET)
   workflow_dispatch:        # Also allows manual trigger from GitHub UI
 
 permissions:
@@ -84,13 +84,19 @@ jobs:
           path: data/summarized.json
           retention-days: 14
 
-      - name: Commit digest to repo
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: weekly digest ${{ env.START_DATE }} to ${{ env.END_DATE }}"
-          file_pattern: content/weekly-digest.md
-          commit_user_name: github-actions[bot]
-          commit_user_email: github-actions[bot]@users.noreply.github.com
+      - name: Commit digest to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cp content/weekly-digest.md /tmp/weekly-digest.md
+          git fetch origin main
+          git checkout main
+          git pull --rebase origin main
+          mkdir -p content
+          cp /tmp/weekly-digest.md content/weekly-digest.md
+          git add content/weekly-digest.md
+          git diff --cached --quiet || git commit -m "chore: weekly digest ${START_DATE} to ${END_DATE}"
+          git push origin main
 
       - name: Email digest via Resend
         env:
