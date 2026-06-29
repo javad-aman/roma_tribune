@@ -88,14 +88,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          cp content/weekly-digest.md /tmp/weekly-digest.md
-          git fetch origin develop
-          git checkout develop
-          git pull --rebase origin develop
-          mkdir -p content
-          cp /tmp/weekly-digest.md content/weekly-digest.md
           git add content/weekly-digest.md
           git diff --cached --quiet || git commit -m "chore: daily digest ${START_DATE} to ${END_DATE}"
+          git pull --rebase origin develop
           git push origin develop
 
       - name: Email digest via Resend
